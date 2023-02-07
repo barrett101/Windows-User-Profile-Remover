@@ -55,8 +55,8 @@ If (($verifyPS1 -eq $true) -and ($verifyVBS -eq $true) -and ($verifyScheduledTas
 	Write-Host "---------------------------------------------------"
 	Write-Host "LIST OF USERS ACCOUNTS ON COMPUTER (BEFORE CLEANUP)"
 	Write-Host "---------------------------------------------------"
-	#Below will retrieve all user profile entries on the system minsus the SYSTEM, NetworkService, and LocalService accounts, and those that don't have empty localpath (ex. C:\Users\username)
-	$listofProfilesLoggingOnly = Get-CimInstance -Class Win32_UserProfile | Where-Object { ($_.sid -notmatch "S-1-5-18") -and ($_.sid -notmatch "S-1-5-19") -and ($_.sid -notmatch "S-1-5-20") -and ($_.localpath -ne $null) }
+	#Below will retrieve all user profile entries in the registry minus the special accounts of SYSTEM, NetworkService, and LocalService.  It will also exclude those have empty localpath (ex. C:\Users\username), It will also avoid profiles that part of serviceprofiles (ex. SQL)
+	$listofProfilesLoggingOnly = Get-CimInstance -Class Win32_UserProfile | Where-Object { ($_.Special -ne $true) -and ($_.localpath -ne $null) -and ($_.localpath -notlike "*WINDOWS\ServiceProfiles*") }
 	#Retrieves a list of profiles that have a null localpath, this may mean they are corrupt
 	$listofNULLProfilesLoggingOnly = Get-CimInstance -Class Win32_UserProfile | Where-Object { ($_.localpath -eq $null) }
 	Foreach ($p in $listofProfilesLoggingOnly)
@@ -74,8 +74,8 @@ If (($verifyPS1 -eq $true) -and ($verifyVBS -eq $true) -and ($verifyScheduledTas
 	Write-Host "---------------------------------------------------------------------------------------------------------"
 	Write-Host "USER PROFILE CHECKING AND REMOVAL ---  Will remove profiles older than $DeleteProfileOlderInDays days."
 	Write-Host "---------------------------------------------------------------------------------------------------------"
-	#Below will retrieve all user profile entries in the registry minus SYSTEM, NetworkService, and LocalService, and those that don't have empty localpath (ex. C:\Users\username)
-	$ListOfUsersProfiles = Get-CimInstance -Class Win32_UserProfile | Where-Object { ($_.sid -notmatch "S-1-5-18") -and ($_.sid -notmatch "S-1-5-19") -and ($_.sid -notmatch "S-1-5-20") -and ($_.localpath -ne $null) }
+	#Below will retrieve all user profile entries in the registry minus the special accounts of SYSTEM, NetworkService, and LocalService.  It will also exclude those have empty localpath (ex. C:\Users\username), It will also avoid profiles that part of serviceprofiles (ex. SQL)
+	$ListOfUsersProfiles = Get-CimInstance -Class Win32_UserProfile | Where-Object { ($_.Special -ne $true) -and ($_.localpath -ne $null) -and ($_.localpath -notlike "*WINDOWS\ServiceProfiles*")}
 	#Goes through each user account
 	foreach ($user in $ListOfUsersProfiles)
 	{
@@ -143,8 +143,8 @@ If (($verifyPS1 -eq $true) -and ($verifyVBS -eq $true) -and ($verifyScheduledTas
 	Write-Host "---------------------------------------------------"
 	Write-Host "LIST OF USERS ACCOUNTS ON COMPUTER (AFTER CLEANUP)"
 	Write-Host "---------------------------------------------------"
-	#Below will retrieve all user profile entries on the system minsus the SYSTEM, NetworkService, and LocalService accounts, and those that don't have empty localpath (ex. C:\Users\username)
-	$listofProfilesLoggingOnly = Get-CimInstance -Class Win32_UserProfile | Where-Object { ($_.sid -notmatch "S-1-5-18") -and ($_.sid -notmatch "S-1-5-19") -and ($_.sid -notmatch "S-1-5-20") -and ($_.localpath -ne $null) }
+	#Below will retrieve all user profile entries in the registry minus the special accounts of SYSTEM, NetworkService, and LocalService.  It will also exclude those have empty localpath (ex. C:\Users\username), It will also avoid profiles that part of serviceprofiles (ex. SQL)
+	$listofProfilesLoggingOnly = Get-CimInstance -Class Win32_UserProfile | Where-Object { ($_.Special -ne $true) -and ($_.localpath -ne $null) -and ($_.localpath -notlike "*WINDOWS\ServiceProfiles*")}
 	#Retrieves a list of profiles that have a null localpath, this may mean they are corrupt
 	$listofNULLProfilesLoggingOnly = Get-CimInstance -Class Win32_UserProfile | Where-Object { ($_.localpath -eq $null) }
 	Foreach ($p in $listofProfilesLoggingOnly)
