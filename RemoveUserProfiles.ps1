@@ -15,7 +15,8 @@ $TodayDate = Get-Date
 ###
 #START - CREATE SCHEDULED TASK to record logon time stamps
 #Initially just put the script into the C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp folder but if a user didn't logon daily it wouldn't be accurate.  For example user logons, never reboots, and stays logged in for weeks.
-$ScheduledTaskCheck = Get-ScheduledTask -TaskName "ANY USER - Write Last Logon Date" -ErrorAction SilentlyContinue
+#Adjusted the get-scheduledtasks check below as when run on some computers, it was getting "The System Cannot Find the file specified", expanding it out with the where-object solved this.
+$ScheduledTaskCheck = Get-ScheduledTask -TaskPath "\" -erroraction SilentlyContinue | where-object { ($_.TaskName -match "ANY USER - Write Last Logon Date") }
 If ($ScheduledTaskCheck -ne $null)
 {
 	Write-Host "Scheduled Task is present, no need to create."
@@ -43,7 +44,7 @@ Else
 #Performs Checks to ensure that all the pieces are in place, before allowing the script to run.
 $verifyPS1 = Test-Path -Type Leaf "$WorkingFolder\WriteLastLogonDate.ps1"
 $verifyVBS = Test-Path -Type Leaf "$WorkingFolder\WriteLastLogonDate.vbs"
-$verifyScheduledTask = Get-ScheduledTask -TaskName "ANY USER - Write Last Logon Date" -ErrorAction SilentlyContinue
+$verifyScheduledTask = Get-ScheduledTask -TaskPath "\" -erroraction SilentlyContinue | where-object { ($_.TaskName -match "ANY USER - Write Last Logon Date") }
 
 If (($verifyPS1 -eq $true) -and ($verifyVBS -eq $true) -and ($verifyScheduledTask -ne $null))
 {
